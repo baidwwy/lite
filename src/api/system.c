@@ -83,6 +83,13 @@ top:
       lua_pushstring(L, e.text.text);
       return 2;
 
+    case SDL_TEXTEDITING:
+      lua_pushstring(L, "textediting");
+      lua_pushstring(L, e.edit.text);
+      lua_pushnumber(L, e.edit.start);
+      lua_pushnumber(L, e.edit.length);
+      return 4;
+
     case SDL_MOUSEBUTTONDOWN:
       if (e.button.button == 1) { SDL_CaptureMouse(1); }
       lua_pushstring(L, "mousepressed");
@@ -314,6 +321,16 @@ static int f_fuzzy_match(lua_State *L) {
 }
 
 
+static int f_set_textinput_pos(lua_State *L) {
+  double x = luaL_checknumber(L, 1);
+  double y = luaL_checknumber(L, 2);
+  SDL_Rect rc = {x,y,0,0};
+  SDL_SetTextInputRect(&rc);
+
+  return 0;
+}
+
+
 static const luaL_Reg lib[] = {
   { "poll_event",          f_poll_event          },
   { "set_cursor",          f_set_cursor          },
@@ -328,6 +345,7 @@ static const luaL_Reg lib[] = {
   { "get_time",            f_get_time            },
   { "sleep",               f_sleep               },
   { "fuzzy_match",         f_fuzzy_match         },
+  { "set_textinput_pos",   f_set_textinput_pos   },
   { NULL, NULL }
 };
 

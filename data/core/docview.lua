@@ -299,6 +299,15 @@ function DocView:on_text_input(text)
 end
 
 
+function DocView:on_text_editing(text, start, length)
+  if #text == 0 then
+    self.composition = nil
+  else
+    self.composition = {text = text, start = start, length = length}
+  end
+end
+
+
 function DocView:update()
   -- scroll to make caret visible and reset blink timer if it moved
   local line, col = self.doc:get_selection()
@@ -419,6 +428,19 @@ function DocView:draw()
   core.pop_clip_rect()
 
   self:draw_scrollbar()
+
+  if self.composition then
+    local c = self.composition
+    local font = style.compositing_font or style.code_font
+    local line1, col1, line2, col2 = self.doc:get_selection(true)
+    local x, y = self:get_line_screen_position(line1)
+    x = x + self:get_col_x_offset(line1, col1)
+
+    system.set_textinput_pos(x, y+self:get_line_height())
+
+    renderer.draw_rect(x, y, font:get_width(c.text), font:get_height(c.text), style.selection)
+    renderer.draw_text(font, c.text, x, y, style.text)
+  end
 end
 
 
